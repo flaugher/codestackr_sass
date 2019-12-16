@@ -1,0 +1,82 @@
+// Imports
+@import './resets';
+@import './variables';
+
+// Functions
+@function weight($weight-name) {
+    @return map-get($font-weights, $weight-name);
+}
+
+// Use mixins to include code within rules without retyping the same code for each rule
+@mixin flex-center($direction) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: $direction;
+}
+
+@mixin theme($light-theme: true) {
+    @if $light-theme {
+        background: lighten($primary-color, 100%);
+        color: darken($text-color, 100%);
+    }
+}
+
+// When mobile is include, if viewport width < 800 pixels, include the content defined in the include.
+@mixin mobile {
+    @media (max-width: $mobile) {
+        @content;
+    }
+}
+
+// Rules
+body {
+    background-color: $primary-color;
+    color: $text-color;
+}
+
+.main {
+    @include flex-center(row);
+    // Use an operation (calculation) to get to 80%
+    // With Sass, operands have to be same type.
+    width: 100% - 20%;
+    // You could do it using CSS calc and have operands with different types.
+    //width: 100% - 50px;
+    margin: 0 auto;
+
+    // Creates two separate rules:
+    // .main
+    // .main .main__paragraph
+    //
+    // &__paragraph {
+    //    font-weight: map-get($font-weights, regular);
+    // };
+
+    // Interpolation: creates separate ".main .main__paragraph" rule
+    #{&}__paragraph1 {
+      font-weight: weight(regular);
+
+    // Modifies selector to create separate ".main .main__paragrph:hover" rule
+      &:hover {
+          color: red;
+      };
+    }
+
+    // Extend (reuse) contents of one class in another class
+    #{&}__paragraph2 {
+        @extend .main__paragraph1;
+        // But change one value
+        &:hover {
+            color: $accent-color;
+        }
+    }
+
+    // If viewport width < 800 pixels, change to columns
+    @include mobile {
+        flex-direction: column;
+    }
+}
+
+.light {
+    @include theme(true);
+}
